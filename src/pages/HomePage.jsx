@@ -37,7 +37,7 @@ const [query, setQuery] = useState("");
 
   useEffect(() => {
     dispatch(fetchData(filterValue.toLowerCase()));
-    setTimeout(() => setIsLoading(false), 3000);
+    setTimeout(() => setIsLoading(false), 2000);
   }, [dispatch, filterValue]);
 
   useEffect(() => {
@@ -100,8 +100,12 @@ const [query, setQuery] = useState("");
   }
   
 
-   const handleClick = () => {
-     alert('e work');
+   const handlePrevPage = () => {
+    
+  };
+
+  const handleNextPage = () => {
+    
   };
 
   const TableHead = () => {
@@ -214,10 +218,10 @@ const [query, setQuery] = useState("");
   const Pagination = () => {
     return (
       <div className="my-8 flex items-end justify-end pr-3">
-        <div className={`px-5 py-2 bg-blue-400`} onClick={handleClick}>
+        <div className={`px-5 py-2 bg-blue-400`} onClick={handlePrevPage}>
           <h2 className="text-sm text-wh"> Prev </h2>
         </div>
-        <div className={`px-5 py-2 bg-gray-100`} onClick={handleClick}>
+        <div className={`px-5 py-2 bg-gray-100`} onClick={handleNextPage}>
           <h2 className="text-sm text-black"> Next </h2>
         </div>
       </div>
