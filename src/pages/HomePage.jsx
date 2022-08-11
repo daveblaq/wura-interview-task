@@ -12,6 +12,13 @@ import {
 
 const HomePage = () => {
   const [filterValue, setFilterValue] = useState("Films");
+  const [isLoading, setIsLoading] = useState(true);
+  // const [searchField, setSearchField] = useState("");
+
+const [query, setQuery] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
+  
+
   const filters = [
     "Films",
     "People",
@@ -29,7 +36,9 @@ const HomePage = () => {
   const { feeds } = useSelector(userSelector);
 
   useEffect(() => {
+    setIsLoading(true);
     dispatch(fetchData(filterValue.toLowerCase()));
+    setIsLoading(false)
   }, [dispatch, filterValue]);
 
   useEffect(() => {
@@ -47,9 +56,51 @@ const HomePage = () => {
     }
   }, [isError, dispatch]);
 
-  const search = (value) => {
-    console.log(value);
-  };
+
+
+  const search = (e) => {
+    let searchField;
+    setQuery(e.target.value);
+    if (
+      filterValue.toLowerCase() === "people" ||
+      filterValue.toLowerCase() === "planets" ||
+      filterValue.toLowerCase() === "species"
+    ) {
+       
+       searchField = "name";
+    }
+
+    else if (
+      filterValue.toLowerCase() === "films"
+    ) {
+      searchField = "title";
+    }
+   
+  //  console.log(headers, "Data from Search");
+  //  console.log(searchField, "Data from Search");
+    const searchedField = feeds.payload.results.filter(
+      (data) => {
+         if (searchField === "name" || searchField === "title") {
+           return data[searchField]
+             .toLowerCase()
+             .includes(e.target.value.toLowerCase());
+         }
+         else {
+             return (
+               data.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
+               data.model.toLowerCase().includes(e.target.value.toLowerCase())
+             );
+        }
+        // console.log(data, "Data from Search")
+      }
+     
+    );
+
+    // console.log("Data", searchedField);
+     setFilteredData(searchedField);
+    console.log(searchedField, "Data from Search");
+  }
+  
 
   const TableHead = () => {
     return (
@@ -77,7 +128,7 @@ const HomePage = () => {
           className="overflow-hidden w-full rounded-xl shadow"
           style={{ width: "90%" }}
         >
-          <SearchBox handleSearch={search} />
+          <SearchBox handleSearch={search} query={query} />
           <div className="flex items-center justify-between px-3 py-4">
             <h1 className="text-black-500 text-xl">All {filterValue}</h1>
             <div className="px-2 py-2 bg-blue-50 rounded-md flex">
@@ -100,7 +151,43 @@ const HomePage = () => {
             <table className="table-auto w-full hover:w-full ">
               <TableHead />
               <tbody className="divide-y divide-blue-200 divide-dashed">
-                {feeds &&
+                {query.length > 0 ? filteredData.map((feed, index) => (
+                    <tr
+                      className="bg-white even:bg-gray-50 max-w-full"
+                      key={index}
+                    >
+                      {headers.map((fd, i) => (
+                        <td
+                          key={fd + i}
+                          className="p-3 text-sm max-w-xs whitespace-nowrap overflow-auto text-gray-700"
+                        >
+                          {Array.isArray(feed[fd])
+                            ? feed[fd].map((value, i) => {
+                                if (value.includes("https://")) {
+                                  return (
+                                    <span key={value}>
+                                      <a
+                                        href={value}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
+                                        {value}
+                                      </a>
+                                      <span>;&nbsp;</span>
+                                    </span>
+                                  );
+                                }
+                                return (
+                                  <span key={value}>
+                                    <span>{value};&nbsp;</span>
+                                  </span>
+                                );
+                              })
+                            : feed[fd]}
+                        </td>
+                      ))}
+                    </tr>
+                  )) : feeds &&
                   feeds.payload.results.map((feed, index) => (
                     <tr
                       className="bg-white even:bg-gray-50 max-w-full"
@@ -109,7 +196,7 @@ const HomePage = () => {
                       {headers.map((fd, i) => (
                         <td
                           key={fd + i}
-                          className="p-3 text-sm max-w-xs whitespace-nowrap overflow-auto text-gray-700 capitalize"
+                          className="p-3 text-sm max-w-xs whitespace-nowrap overflow-auto text-gray-700"
                         >
                           {Array.isArray(feed[fd])
                             ? feed[fd].map((value, i) => {
@@ -138,6 +225,7 @@ const HomePage = () => {
                       ))}
                     </tr>
                   ))}
+                
               </tbody>
             </table>
           </div>
