@@ -235,7 +235,7 @@ const [query, setQuery] = useState("");
           className="overflow-hidden w-full rounded-xl shadow"
           style={{ width: "90%" }}
         >
-          <SearchBox handleSearch={search} query={query} />
+          <SearchBox handleSearch={search} query={query} placeholder="Search Through Results" />
           <div className="flex items-center justify-between px-3 py-4">
             <h1 className="text-black-500 text-xl">All {filterValue}</h1>
             <div className="px-2 py-2 bg-blue-50 rounded-md flex">
