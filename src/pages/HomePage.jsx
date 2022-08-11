@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { RiSoundModuleLine } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import Filter from "../components/Home/Filter";
-import Pagination from "../components/Home/Pagination";
 import SearchBox from "../components/Home/SearchBox";
+import Loader from "../components/Home/Loader";
 import {
   clearState,
   fetchData,
@@ -13,7 +13,7 @@ import {
 const HomePage = () => {
   const [filterValue, setFilterValue] = useState("Films");
   const [isLoading, setIsLoading] = useState(true);
-  // const [searchField, setSearchField] = useState("");
+
 
 const [query, setQuery] = useState("");
   const [filteredData, setFilteredData] = useState([]);
@@ -36,9 +36,8 @@ const [query, setQuery] = useState("");
   const { feeds } = useSelector(userSelector);
 
   useEffect(() => {
-    setIsLoading(true);
     dispatch(fetchData(filterValue.toLowerCase()));
-    setIsLoading(false)
+    setTimeout(() => setIsLoading(false), 3000);
   }, [dispatch, filterValue]);
 
   useEffect(() => {
@@ -76,8 +75,7 @@ const [query, setQuery] = useState("");
       searchField = "title";
     }
    
-  //  console.log(headers, "Data from Search");
-  //  console.log(searchField, "Data from Search");
+  
     const searchedField = feeds.payload.results.filter(
       (data) => {
          if (searchField === "name" || searchField === "title") {
@@ -91,16 +89,20 @@ const [query, setQuery] = useState("");
                data.model.toLowerCase().includes(e.target.value.toLowerCase())
              );
         }
-        // console.log(data, "Data from Search")
+       
       }
      
     );
 
-    // console.log("Data", searchedField);
+   
      setFilteredData(searchedField);
-    console.log(searchedField, "Data from Search");
+
   }
   
+
+   const handleClick = () => {
+     alert('e work');
+  };
 
   const TableHead = () => {
     return (
@@ -118,6 +120,107 @@ const [query, setQuery] = useState("");
           })}
         </tr>
       </thead>
+    );
+  };
+
+  const TableBody = () => {
+    return (
+      <div className="mx-2 my-2 max-w-full w-full overflow-auto">
+        <table className="table-auto w-full hover:w-full ">
+          <TableHead />
+          <tbody className="divide-y divide-blue-200 divide-dashed">
+            {query.length > 0
+              ? filteredData.map((feed, index) => (
+                  <tr
+                    className="bg-white even:bg-gray-50 max-w-full"
+                    key={index}
+                  >
+                    {headers.map((fd, i) => (
+                      <td
+                        key={fd + i}
+                        className="p-3 text-sm max-w-xs whitespace-nowrap overflow-auto text-gray-700"
+                      >
+                        {Array.isArray(feed[fd])
+                          ? feed[fd].map((value, i) => {
+                              if (value.includes("https://")) {
+                                return (
+                                  <span key={value}>
+                                    <a
+                                      href={value}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {value}
+                                    </a>
+                                    <span>;&nbsp;</span>
+                                  </span>
+                                );
+                              }
+                              return (
+                                <span key={value}>
+                                  <span>{value};&nbsp;</span>
+                                </span>
+                              );
+                            })
+                          : feed[fd]}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              : feeds &&
+                feeds.payload.results.map((feed, index) => (
+                  <tr
+                    className="bg-white even:bg-gray-50 max-w-full"
+                    key={index}
+                  >
+                    {headers.map((fd, i) => (
+                      <td
+                        key={fd + i}
+                        className="p-3 text-sm max-w-xs whitespace-nowrap overflow-auto text-gray-700"
+                      >
+                        {Array.isArray(feed[fd])
+                          ? feed[fd].map((value, i) => {
+                              if (value.includes("https://")) {
+                                return (
+                                  <span key={value}>
+                                    <a
+                                      href={value}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {value}
+                                    </a>
+                                    <span>;&nbsp;</span>
+                                  </span>
+                                );
+                              }
+                              return (
+                                <span key={value}>
+                                  <span>{value};&nbsp;</span>
+                                </span>
+                              );
+                            })
+                          : feed[fd]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  const Pagination = () => {
+    return (
+      <div className="my-8 flex items-end justify-end pr-3">
+        <div className={`px-5 py-2 bg-blue-400`} onClick={handleClick}>
+          <h2 className="text-sm text-wh"> Prev </h2>
+        </div>
+        <div className={`px-5 py-2 bg-gray-100`} onClick={handleClick}>
+          <h2 className="text-sm text-black"> Next </h2>
+        </div>
+      </div>
     );
   };
 
@@ -147,88 +250,8 @@ const [query, setQuery] = useState("");
               </select>
             </div>
           </div>
-          <div className="mx-2 my-2 max-w-full w-full overflow-auto">
-            <table className="table-auto w-full hover:w-full ">
-              <TableHead />
-              <tbody className="divide-y divide-blue-200 divide-dashed">
-                {query.length > 0 ? filteredData.map((feed, index) => (
-                    <tr
-                      className="bg-white even:bg-gray-50 max-w-full"
-                      key={index}
-                    >
-                      {headers.map((fd, i) => (
-                        <td
-                          key={fd + i}
-                          className="p-3 text-sm max-w-xs whitespace-nowrap overflow-auto text-gray-700"
-                        >
-                          {Array.isArray(feed[fd])
-                            ? feed[fd].map((value, i) => {
-                                if (value.includes("https://")) {
-                                  return (
-                                    <span key={value}>
-                                      <a
-                                        href={value}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                      >
-                                        {value}
-                                      </a>
-                                      <span>;&nbsp;</span>
-                                    </span>
-                                  );
-                                }
-                                return (
-                                  <span key={value}>
-                                    <span>{value};&nbsp;</span>
-                                  </span>
-                                );
-                              })
-                            : feed[fd]}
-                        </td>
-                      ))}
-                    </tr>
-                  )) : feeds &&
-                  feeds.payload.results.map((feed, index) => (
-                    <tr
-                      className="bg-white even:bg-gray-50 max-w-full"
-                      key={index}
-                    >
-                      {headers.map((fd, i) => (
-                        <td
-                          key={fd + i}
-                          className="p-3 text-sm max-w-xs whitespace-nowrap overflow-auto text-gray-700"
-                        >
-                          {Array.isArray(feed[fd])
-                            ? feed[fd].map((value, i) => {
-                                if (value.includes("https://")) {
-                                  return (
-                                    <span key={value}>
-                                      <a
-                                        href={value}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                      >
-                                        {value}
-                                      </a>
-                                      <span>;&nbsp;</span>
-                                    </span>
-                                  );
-                                }
-                                return (
-                                  <span key={value}>
-                                    <span>{value};&nbsp;</span>
-                                  </span>
-                                );
-                              })
-                            : feed[fd]}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                
-              </tbody>
-            </table>
-          </div>
+          {isLoading ? <Loader /> : <TableBody />}
+
           <Pagination />
         </div>
       </div>
